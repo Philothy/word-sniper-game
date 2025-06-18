@@ -1,14 +1,38 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ことばバトル</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <title>Word Sniper風ゲーム</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>ことばバトル</h1>
-  <p>お題：<span id="prompt">準備中...</span></p>
-  <button onclick="nextPrompt()">次のお題</button>
+  <h1>Word Sniper風ゲーム</h1>
+
+  <div id="start-screen">
+    <label>プレイヤー人数: 
+      <select id="player-count">
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4" selected>4</option>
+        <option value="5">5</option>
+      </select>
+    </label>
+    <button id="start-button">ゲーム開始</button>
+  </div>
+
+  <div id="game-screen" style="display:none;">
+    <p>ジャンル：<span id="genre">---</span></p>
+    <p>文字：<span id="letters">---</span></p>
+
+    <h2>得点</h2>
+    <ul id="score-list"></ul>
+
+    <h3>正解者を選んでください</h3>
+    <form id="answer-form"></form>
+
+    <button id="submit-answer">正解登録</button>
+    <button id="next-prompt">次のお題</button>
+  </div>
 
   <script src="script.js"></script>
 </body>
