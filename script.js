@@ -1,19 +1,24 @@
-// お題のジャンル候補と文字列候補
-const genres = ["食べ物", "動物", "場所", "乗り物", "スポーツ"];
-const lettersList = [
-  "し", "り", "た", "み", "か", "さ", "ん", "こ", "ば", "く",
-  "と", "う", "ね", "ま", "よ", "へ", "ふ", "え", "や", "き",
-  "うみ", "やま", "かわ", "にわ"
+// ジャンル候補（本家寄せ）
+const genres = [
+  "食べ物","動物","乗り物","スポーツ","人名","地名",
+  "映画・ドラマ","音楽","色","ブランド","植物","道具・用品",
+  "職業","学校・教育","科学・技術"
 ];
 
-// 1文字あたりの得点
-const POINT_PER_LETTER = 1;
+// 点数ごとの文字列候補（例）
+const letterGroups = {
+  1: ["し","り","た","み","か","さ","ん","こ","ば","く"],
+  2: ["かん","さん","たい","くら","なか","けい"],
+  3: ["ば び ぶ べ ぼ","だ ぢ づ で ど"],
+  4: ["ちゃ ちゅ ちょ","しゃ しゅ しょ"],
+  5: ["ぎゃ ぎゅ ぎょ","ぴゃ ぴゅ ぴょ"]
+};
 
-// プレイヤー情報
+// プレイヤー情報を保持
 let players = [];
-let currentPrompt = null;
+let currentPrompt = null; // {genre, letters, points}
 
-// DOM要素
+// DOM要素取得
 const startScreen = document.getElementById("start-screen");
 const gameScreen = document.getElementById("game-screen");
 const playerCountSelect = document.getElementById("player-count");
@@ -22,88 +27,87 @@ const genreSpan = document.getElementById("genre");
 const lettersSpan = document.getElementById("letters");
 const scoreList = document.getElementById("score-list");
 const answerForm = document.getElementById("answer-form");
-const submitAnswerBtn = document.getElementById("submit-answer");
 const nextPromptBtn = document.getElementById("next-prompt");
 
 // プレイヤー初期化
 function initPlayers(count) {
   players = [];
-  for(let i = 1; i <= count; i++) {
-    players.push({ name: `プレイヤー${i}`, score: 0 });
+  for(let i=1; i<=count; i++){
+    players.push({name:`プレイヤー${i}`, score:0});
   }
 }
 
-// 得点リストを画面に表示
+// スコア表示更新
 function updateScoreList() {
   scoreList.innerHTML = "";
-  players.forEach((player, i) => {
+  players.forEach(p => {
     const li = document.createElement("li");
-    li.textContent = `${player.name} : ${player.score} 点`;
+    li.textContent = `${p.name} : ${p.score}点`;
     scoreList.appendChild(li);
   });
 }
 
-// 回答フォームのチェックボックスを生成
-function updateAnswerForm() {
+// お題をランダム生成
+function getRandomPrompt() {
+  const genre = genres[Math.floor(Math.random()*genres.length)];
+  const pointsArray = Object.keys(letterGroups);
+  const randomPoint = pointsArray[Math.floor(Math.random()*pointsArray.length)];
+  const lettersArr = letterGroups[randomPoint];
+  const letters = lettersArr[Math.floor(Math.random()*lettersArr.length)];
+  return {genre, letters, points: Number(randomPoint)};
+}
+
+// お題表示
+function showPrompt() {
+  currentPrompt = getRandomPrompt();
+  genreSpan.textContent = currentPrompt.genre;
+  lettersSpan.textContent = currentPrompt.letters;
+}
+
+// プレイヤーボタンを作成
+function buildAnswerForm() {
   answerForm.innerHTML = "";
-  players.forEach((player, i) => {
-    const label = document.createElement("label");
-    label.style.display = "block";
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.value = i;
-    label.appendChild(checkbox);
-    label.appendChild(document.createTextNode(` ${player.name}`));
-    answerForm.appendChild(label);
+  players.forEach((p,i) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.textContent = p.name;
+    btn.dataset.index = i;
+    btn.classList.remove("selected");
+    btn.addEventListener("click", () => {
+      [...answerForm.children].forEach(b => b.classList.remove("selected"));
+      btn.classList.add("selected");
+    });
+    answerForm.appendChild(btn);
   });
 }
 
-// お題をランダムに生成して画面に表示
-function generatePrompt() {
-  const genre = genres[Math.floor(Math.random() * genres.length)];
-  const letters = lettersList[Math.floor(Math.random() * lettersList.length)];
-  currentPrompt = { genre, letters };
-  genreSpan.textContent = genre;
-  lettersSpan.textContent = letters;
+// 「次のお題」ボタン処理
+function nextPrompt() {
+  const selectedBtn = [...answerForm.children].find(b => b.classList.contains("selected"));
+  if(!selectedBtn){
+    alert("得点を加算するプレイヤーを選択してください");
+    return;
+  }
+  const playerIndex = Number(selectedBtn.dataset.index);
+  players[playerIndex].score += currentPrompt.points;
+  updateScoreList();
+  showPrompt();
+  buildAnswerForm();
 }
 
 // ゲーム開始処理
-startButton.addEventListener("click", () => {
+function startGame() {
   const count = Number(playerCountSelect.value);
-  if(count < 2 || count > 5) {
-    alert("プレイヤー人数は2～5人で選択してください。");
-    return;
-  }
   initPlayers(count);
   updateScoreList();
-  updateAnswerForm();
-  generatePrompt();
-
   startScreen.style.display = "none";
   gameScreen.style.display = "block";
-});
+  showPrompt();
+  buildAnswerForm();
+}
 
-// 正解登録処理
-submitAnswerBtn.addEventListener("click", () => {
-  const checkboxes = answerForm.querySelectorAll("input[type=checkbox]");
-  let anyChecked = false;
-  checkboxes.forEach(cb => {
-    if(cb.checked) {
-      anyChecked = true;
-      players[cb.value].score += currentPrompt.letters.length * POINT_PER_LETTER;
-      cb.checked = false; // チェックリセット
-    }
-  });
+// イベント登録
+startButton.addEventListener("click", startGame);
+nextPromptBtn.addEventListener("click", nextPrompt);
 
-  if(!anyChecked) {
-    alert("正解者を1人以上選んでください。");
-    return;
-  }
-
-  updateScoreList();
-});
-
-// 次のお題ボタン
-nextPromptBtn.addEventListener("click", () => {
-  generatePrompt();
-});
+// 初期状態ボタン設定
