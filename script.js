@@ -55,8 +55,15 @@ function updateScoreList() {
 
 // お題をランダム生成
 function getRandomPrompt() {
+  // 重み付き配列
+  const pointsArray = [
+    1,1,1,1,1,1,1,1,1,1, // 1点（10個）
+    2,2,2,2,              // 2点（4個）
+    3,                    // 3点（1個）
+    4,                    // 4点（1個）
+    5                     // 5点（1個）
+  ];
   const genre = genres[Math.floor(Math.random()*genres.length)];
-  const pointsArray = Object.keys(letterGroups);
   const randomPoint = pointsArray[Math.floor(Math.random()*pointsArray.length)];
   const lettersArr = letterGroups[randomPoint];
   const letters = lettersArr[Math.floor(Math.random()*lettersArr.length)];
