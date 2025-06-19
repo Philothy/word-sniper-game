@@ -61,7 +61,7 @@ function getRandomPrompt() {
 function showPrompt() {
   currentPrompt = getRandomPrompt();
   genreSpan.textContent = currentPrompt.genre;
-  lettersSpan.textContent = currentPrompt.letters;
+  lettersSpan.textContent = `${currentPrompt.letters}（${currentPrompt.points}点）`;
 }
 
 // プレイヤーボタンを作成
