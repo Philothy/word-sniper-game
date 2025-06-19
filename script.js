@@ -84,13 +84,12 @@ function buildAnswerForm() {
 // 「次のお題」ボタン処理
 function nextPrompt() {
   const selectedBtn = [...answerForm.children].find(b => b.classList.contains("selected"));
-  if(!selectedBtn){
-    alert("得点を加算するプレイヤーを選択してください");
-    return;
+  if(selectedBtn){
+    const playerIndex = Number(selectedBtn.dataset.index);
+    players[playerIndex].score += currentPrompt.points;
+    updateScoreList();
   }
-  const playerIndex = Number(selectedBtn.dataset.index);
-  players[playerIndex].score += currentPrompt.points;
-  updateScoreList();
+  // 正答者がいなくても次のお題へ進む
   showPrompt();
   buildAnswerForm();
 }
