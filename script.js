@@ -53,14 +53,53 @@ const lettersSpan = document.getElementById("letters");
 const scoreList = document.getElementById("score-list");
 const answerForm = document.getElementById("answer-form");
 const nextPromptBtn = document.getElementById("next-prompt");
+const playerNamesDiv = document.getElementById("player-names"); // 追加
 
-// プレイヤー初期化
+// プレイヤー名入力欄を生成
+function buildPlayerNameInputs(count) {
+  playerNamesDiv.innerHTML = "";
+  for(let i=1; i<=count; i++){
+    const label = document.createElement("label");
+    label.textContent = `プレイヤー${i}: `;
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = `プレイヤー${i}`;
+    input.id = `player-name-${i}`;
+    input.required = true;
+    label.appendChild(input);
+    playerNamesDiv.appendChild(label);
+    playerNamesDiv.appendChild(document.createElement("br"));
+  }
+}
+
+// プレイヤー初期化（名前入力対応）
 function initPlayers(count) {
   players = [];
   for(let i=1; i<=count; i++){
-    players.push({name:`プレイヤー${i}`, score:0});
+    const input = document.getElementById(`player-name-${i}`);
+    const name = input ? input.value.trim() || `プレイヤー${i}` : `プレイヤー${i}`;
+    players.push({name, score:0});
   }
 }
+
+// 人数変更時に入力欄を再生成
+playerCountSelect.addEventListener("change", () => {
+  buildPlayerNameInputs(Number(playerCountSelect.value));
+});
+
+// ゲーム開始時に入力欄から名前取得
+function startGame() {
+  const count = Number(playerCountSelect.value);
+  initPlayers(count);
+  updateScoreList();
+  startScreen.style.display = "none";
+  gameScreen.style.display = "block";
+  showPrompt();
+  buildAnswerForm();
+}
+
+// 初期表示
+buildPlayerNameInputs(Number(playerCountSelect.value));
 
 // スコア表示更新
 function updateScoreList() {
