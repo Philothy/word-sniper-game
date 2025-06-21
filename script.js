@@ -77,10 +77,10 @@ function getRandomPrompt() {
   // 重み付き配列
   const pointsArray = [
     1,1,1,1,1,1,1,1,1,1, // 1点（10個）
-    2,2,2,2,              // 2点（4個）
-    3,                    // 3点（1個）
-    4,                    // 4点（1個）
-    5                     // 5点（1個）
+    2,2,2,2,2            // 2点（5個）
+    3,3,3                // 3点（3個）
+    4,4                  // 4点（2個）
+    5                    // 5点（1個）
   ];
   const genre = genres[Math.floor(Math.random()*genres.length)];
   const randomPoint = pointsArray[Math.floor(Math.random()*pointsArray.length)];
